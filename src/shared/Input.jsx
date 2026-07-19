@@ -169,6 +169,8 @@ export default function Input({ chat, setChat }) {
         <textarea
           rows={1}
           onChange={handleChange}
+          autoComplete="off"
+          aria-label="Ask my clone of chatGPT"
           value={search}
           id="default-search"
           className="block w-full rounded border-[#303139] bg-[#40414E] px-4 py-3 text-white leading-6 resize-none focus:outline-none focus:ring-0 overflow-y-auto no-scrollbar"
