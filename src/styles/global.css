@@ -4,8 +4,100 @@
 @tailwind components;
 @tailwind utilities;
 
+:root,
+html[data-theme="dark"] {
+  --color-background: #343541;
+  --color-side-bg: #202123;
+  --color-bright: #444654;
+  --color-text: #ffffff;
+  --color-muted-text: #c5c5d1;
+  --color-panel: #343540;
+  --color-input: #40414e;
+  --color-input-border: #303139;
+  --color-hover: #374151;
+}
+
+html[data-theme="light"] {
+  --color-background: #ffffff;
+  --color-side-bg: #f7f7f8;
+  --color-bright: #ececf1;
+  --color-text: #202123;
+  --color-muted-text: #6e6e80;
+  --color-panel: #f7f7f8;
+  --color-input: #ffffff;
+  --color-input-border: #d9d9e3;
+  --color-hover: #ececf1;
+}
+
 body {
   @apply font-inter font-normal bg-background;
+  color: var(--color-text);
+}
+
+html,
+body {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+html[data-theme="light"] body {
+  background-color: var(--color-background) !important;
+}
+
+html[data-theme="light"] .bg-background {
+  background-color: var(--color-background) !important;
+}
+
+html[data-theme="light"] .bg-sideBg {
+  background-color: var(--color-side-bg) !important;
+}
+
+html[data-theme="light"] .bg-bright {
+  background-color: var(--color-bright) !important;
+}
+
+html[data-theme="light"] .border-bright {
+  border-color: var(--color-input-border) !important;
+}
+
+html[data-theme="light"] .text-white {
+  color: var(--color-text) !important;
+}
+
+html[data-theme="light"] .text-\[\#C5C5D1\] {
+  color: var(--color-muted-text) !important;
+}
+
+html[data-theme="light"] .bg-\[\#343540\] {
+  background-color: var(--color-panel) !important;
+}
+
+html[data-theme="light"] aside {
+  color: var(--color-text);
+  box-shadow: inset -1px 0 0 var(--color-input-border);
+}
+
+html[data-theme="light"] button {
+  color: var(--color-text);
+}
+
+html[data-theme="light"] .hover\:bg-gray-700:hover {
+  background-color: var(--color-hover) !important;
+}
+
+html[data-theme="light"] #default-search {
+  background-color: var(--color-input) !important;
+  border-color: var(--color-input-border) !important;
+  color: var(--color-text) !important;
+}
+
+html[data-theme="light"] svg path[stroke] {
+  stroke: var(--color-muted-text);
+}
+
+html[data-theme="light"] svg path[fill] {
+  fill: var(--color-muted-text);
 }
 
 /* Headings */

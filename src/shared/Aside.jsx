@@ -8,8 +8,22 @@ import {
   Logout,
 } from "@/utils/icons.util";
 import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
 
 export default function Aside({ setChat }) {
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem("theme") || "dark",
+  );
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  function handleThemeToggle() {
+    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
+  }
+
   function handleLogout() {
     Cookies.remove("token");
     Cookies.remove("email");
@@ -121,10 +135,15 @@ export default function Aside({ setChat }) {
             </button>
           </li>
           <li>
-            <button className="block py-2 px-3 hover:bg-gray-700 w-full">
+            <button
+              className="block py-2 px-3 hover:bg-gray-700 w-full"
+              onClick={handleThemeToggle}
+            >
               <Feature>
                 <Light />
-                <p className="text-white">Light mode</p>
+                <p className="text-white">
+                  {theme === "dark" ? "Light mode" : "Dark mode"}
+                </p>
               </Feature>
             </button>
           </li>

@@ -1,67 +1,119 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Refresh } from "@/utils/icons.util";
 import { useState } from "react";
+
+const HUGGING_FACE_API_URL =
+  "https://router.huggingface.co/featherless-ai/v1/chat/completions";
+const HUGGING_FACE_MODEL = "openai/gpt-oss-120b";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 export default function Input({ chat, setChat }) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [rotate, setRotate] = useState(false);
-  const genAI = new GoogleGenerativeAI(
-    "AIzaSyAuPdoZHMUieDFn04qafijPhlPdeH5QtYI"
-  );
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  function handleHistory(prompt, history = chat) {
+    const messages = [
+      {
+        role: "system",
+        content: "You are a helpful assistant.",
+      },
+    ];
+
+    history.forEach(({ prompt: userPrompt, response }) => {
+      if (userPrompt) {
+        messages.push({
+          role: "user",
+          content: userPrompt,
+        });
+      }
+
+      if (response) {
+        messages.push({
+          role: "assistant",
+          content: response,
+        });
+      }
+    });
+
+    messages.push({
+      role: "user",
+      content: prompt,
+    });
+
+    return messages;
+  }
+
+  async function getAssistantReply(prompt, history = chat) {
+    const response = await fetch(HUGGING_FACE_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: HUGGING_FACE_MODEL,
+        messages: handleHistory(prompt, history),
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error(error);
+      throw new Error(error);
+    }
+
+    const data = await response.json();
+    return data?.choices?.[0]?.message?.content || "No response generated.";
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!search) return;
-    const searchValue = search;
+    if (!search.trim()) return;
+
+    const searchValue = search.trim();
+
     try {
       setSearch("");
       setLoading(true);
-      setChat([...chat, { prompt: searchValue, response: "" }]);
-      const result = await model.generateContent(searchValue);
-      console.log(result);
-      if (result && result.response && result.response.text) {
-        setChat([
-          ...chat,
-          { prompt: searchValue, response: result.response.text() },
-        ]);
-      } else {
-        setChat([
-          ...chat,
-          {
-            prompt: searchValue,
-            response: "Invalid response from model.generateContent",
-          },
-        ]);
-        console.error("Invalid response from model.generateContent");
-      }
+      setChat((prev) => [...prev, { prompt: searchValue, response: "" }]);
+
+      const reply = await getAssistantReply(searchValue);
+
+      setChat((prev) =>
+        prev.map((item, index) =>
+          index === prev.length - 1 ? { ...item, response: reply } : item,
+        ),
+      );
     } catch (error) {
-      setChat([
-        ...chat,
-        { prompt: searchValue, response: "Api Qouta Exceeded" },
-      ]);
+      setChat((prev) =>
+        prev.map((item, index) =>
+          index === prev.length - 1
+            ? { ...item, response: "Api Qouta Exceeded" }
+            : item,
+        ),
+      );
       console.error("Error in handleSubmit:", error);
     } finally {
       setLoading(false);
     }
   }
+
   async function handleRegenerate() {
-    if (!chat) return;
+    if (!chat?.length) return;
+
     try {
       setLoading(true);
       setRotate(true);
-      const result = await model.generateContent(chat[chat.length - 1].prompt);
-      if (result && result.response && result.response.text) {
-        setChat([
-          ...chat,
-          {
-            prompt: chat[chat.length - 1].prompt,
-            response: result.response.text(),
-          },
-        ]);
-      } else {
-        console.error("Invalid response from model.generateContent");
-      }
+
+      const prompt = chat[chat.length - 1].prompt;
+      const reply = await getAssistantReply(prompt, chat.slice(0, -1));
+
+      setChat((prev) => [
+        ...prev,
+        {
+          prompt,
+          response: reply,
+        },
+      ]);
     } catch (error) {
       console.error("Error in handleRegenerate:", error);
     } finally {
@@ -69,6 +121,7 @@ export default function Input({ chat, setChat }) {
       setRotate(false);
     }
   }
+
   function handleChange(e) {
     setSearch(e.target.value);
   }

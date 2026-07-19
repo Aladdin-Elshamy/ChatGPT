@@ -19,9 +19,9 @@ export default {
       colors: {
         primary: "#0FA47F",
         secondary: "#5536DA",
-        background: "#343541",
-        sideBg: "#202123",
-        bright: "#444654"
+        background: "var(--color-background)",
+        sideBg: "var(--color-side-bg)",
+        bright: "var(--color-bright)",
       },
       keyframes: {
         'spin-reverse': {

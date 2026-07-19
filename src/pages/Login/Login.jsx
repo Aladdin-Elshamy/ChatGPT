@@ -1,11 +1,11 @@
-import { GPTLogo, Google, Microsoft } from "@/utils/icons.util";
+import { GPTLogo, Google } from "@/utils/icons.util";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import SignUpWithGoogle from "@/Oauth";
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [microsoftMsg, setMicrosoftMsg] = useState("");
+  console.log(error);
   function handleSubmit(e) {
     e.preventDefault();
     if (!email) {
@@ -26,11 +26,11 @@ export const Login = () => {
     }
   }
 
-  function handleMicrosoftLogin() {
-    setMicrosoftMsg(
-      "Not available yet, please try with Google account or your email address"
-    );
-  }
+  // function handleMicrosoftLogin() {
+  //   setMicrosoftMsg(
+  //     "Not available yet, please try with Google account or your email address"
+  //   );
+  // }
   return (
     <div className="min-h-screen w-full flex justify-center items-center bg-white">
       <div className="flex flex-col items-center gap-14 w-full">
@@ -72,26 +72,26 @@ export const Login = () => {
             </span>
           </div>
 
-          <div className="mt-7 flex flex-col gap-2">
-            <button
-              onClick={handleGoogleLogin}
-              className="flex items-center border border-[#C3C8CF] px-5 py-3 rounded w-full gap-4"
-            >
-              <Google /> Continue with Google
-            </button>
-            <button
+          {/* <div className="mt-7 flex flex-col gap-2"> */}
+          <button
+            onClick={handleGoogleLogin}
+            className="flex mt-7 items-center border border-[#C3C8CF] px-5 py-3 rounded w-full gap-4"
+          >
+            <Google /> Continue with Google
+          </button>
+          {/* <button
               onClick={handleMicrosoftLogin}
               className="flex items-center border border-[#C3C8CF] px-5 py-3 rounded w-full gap-4"
             >
               <Microsoft /> Continue with Microsoft Account
-            </button>
-          </div>
+            </button> */}
+          {/* </div> */}
 
-          {microsoftMsg && (
+          {/* {microsoftMsg && (
             <p className="text-sm text-red-500 font-medium text-center mt-[14px]">
               {microsoftMsg}
             </p>
-          )}
+          )} */}
         </div>
       </div>
     </div>
