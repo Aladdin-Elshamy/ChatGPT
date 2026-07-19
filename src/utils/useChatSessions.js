@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export const MAX_CHATS = 5;
+export const MAX_MESSAGES_PER_CHAT = 50;
 
 const CHAT_STORAGE_KEY = "chatgpt-clone-chats";
 const ACTIVE_CHAT_STORAGE_KEY = "chatgpt-clone-active-chat-id";
@@ -33,6 +34,8 @@ function createChat(messages = []) {
   };
 }
 
+
+
 function loadSavedChats() {
   try {
     const savedChats = localStorage.getItem(CHAT_STORAGE_KEY);
@@ -64,11 +67,19 @@ function loadSavedActiveChatId(chats) {
 
 export function useChatSessions(initialMessages = []) {
   const [initialChat] = useState(() => createChat(initialMessages));
-  const [chats, setChats] = useState(() => loadSavedChats() || [initialChat]);
-  const [activeChatId, setActiveChatId] = useState(() =>
-    loadSavedActiveChatId(loadSavedChats() || [initialChat]),
+  const [savedChats] = useState(() => loadSavedChats());
+  const initialChats = savedChats || [initialChat];
+  const [chats, setChats] = useState(initialChats);
+  const [activeChatId, setActiveChatIdState] = useState(() =>
+    loadSavedActiveChatId(initialChats),
   );
+  const activeChatIdRef = useRef(activeChatId);
   const [chatLimitError, setChatLimitError] = useState("");
+
+  function setActiveChatId(chatId) {
+    activeChatIdRef.current = chatId;
+    setActiveChatIdState(chatId);
+  }
 
   const activeChat = useMemo(() => {
     return chats.find((chat) => chat.id === activeChatId) || chats[0];
@@ -123,22 +134,62 @@ export function useChatSessions(initialMessages = []) {
   }
 
   function setActiveChatMessages(updater) {
-    setChats((currentChats) =>
-      currentChats.map((chat) => {
-        if (chat.id !== activeChatId) {
-          return chat;
-        }
+    setChats((currentChats) => {
+      const currentActiveChatId = activeChatIdRef.current;
+      const activeChat = currentChats.find(
+        (chat) => chat.id === currentActiveChatId,
+      );
 
-        const nextMessages =
-          typeof updater === "function" ? updater(chat.messages) : updater;
+      if (!activeChat) {
+        return currentChats;
+      }
 
-        return {
-          ...chat,
-          title: getChatTitle(nextMessages),
-          messages: nextMessages,
-        };
-      }),
-    );
+      const nextMessages =
+        typeof updater === "function" ? updater(activeChat.messages) : updater;
+
+      if (!Array.isArray(nextMessages)) {
+        return currentChats;
+      }
+
+      const isAddingNewMessages =
+        nextMessages.length > activeChat.messages.length;
+      const isAboveMessageLimit =
+        activeChat.messages.length >= MAX_MESSAGES_PER_CHAT &&
+        isAddingNewMessages;
+
+      if (!isAboveMessageLimit) {
+        setChatLimitError("");
+
+        return currentChats.map((chat) => {
+          if (chat.id !== currentActiveChatId) {
+            return chat;
+          }
+
+          return {
+            ...chat,
+            title: getChatTitle(nextMessages),
+            messages: nextMessages.slice(0, MAX_MESSAGES_PER_CHAT),
+          };
+        });
+      }
+
+      if (currentChats.length >= MAX_CHATS) {
+        setChatLimitError(
+          `This chat reached ${MAX_MESSAGES_PER_CHAT} messages and you already have ${MAX_CHATS} chats. Delete or clear a chat to continue.`,
+        );
+        return currentChats;
+      }
+
+      const overflowMessages = nextMessages.slice(activeChat.messages.length);
+      const newChat = createChat(overflowMessages);
+
+      setActiveChatId(newChat.id);
+      setChatLimitError(
+        `This chat reached ${MAX_MESSAGES_PER_CHAT} messages. A new chat was started.`,
+      );
+
+      return [newChat, ...currentChats];
+    });
   }
 
   function handleClearActiveChat() {
