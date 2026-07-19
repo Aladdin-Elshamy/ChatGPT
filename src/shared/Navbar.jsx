@@ -69,6 +69,12 @@ export default function Navbar({
     setIsMenuOpen(false);
   }
 
+  function getTitle() {
+    const title =
+      chats.find((chat) => chat.id === activeChatId).title || "New chat";
+    return title.length > 35 ? `${title.slice(0, 35)}...` : title;
+  }
+
   return (
     <nav className="lg:hidden bg-background dark:border-gray-500 border-b sticky top-0 z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -96,7 +102,7 @@ export default function Navbar({
             />
           </svg>
         </button>
-        <p className="text-white">New chat</p>
+        <p className="text-white">{getTitle()}</p>
         <button onClick={handleNewChatClick}>
           <Add />
         </button>
