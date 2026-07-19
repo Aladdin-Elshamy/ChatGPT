@@ -2,20 +2,45 @@ import Navbar from "@/shared/Navbar";
 import { AvatarChatGPT, AvatarUser, Dislike, Like } from "@/utils/icons.util";
 import Input from "@/shared/Input";
 import Aside from "@/shared/Aside";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import ReactMarkdown from "react-markdown";
+import { useChatSessions } from "@/utils/useChatSessions";
+
 export function Main() {
-  const [chat, setChat] = useState([
-    {
-      prompt: "What is a Chatbot?",
-      response:
-        "A chatbot is a computer program that simulates human conversation through voice commands or text chats or both. Itcan be integrated with various messaging platforms like Facebook Messenger, WhatsApp, WeChat, etc. and can be used for a variety of purposes, such as customer service, entertainment, and e-commerce.",
-    },
-  ]);
+  const {
+    activeChat,
+    activeChatId,
+    chatLimitError,
+    chats,
+    handleClearActiveChat,
+    handleDeleteChat,
+    handleNewChat,
+    handleSelectChat,
+    setActiveChatMessages,
+  } = useChatSessions();
+
+  const chat = activeChat?.messages || [];
+
   return (
     <main className="text-white lg:flex lg:pl-[20%]">
-      <Navbar setChat={setChat} />
-      <Aside setChat={setChat} />
+      <Navbar
+        chats={chats}
+        activeChatId={activeChatId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={handleDeleteChat}
+        onClearActiveChat={handleClearActiveChat}
+        chatLimitError={chatLimitError}
+      />
+      <Aside
+        chats={chats}
+        activeChatId={activeChatId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={handleDeleteChat}
+        onClearActiveChat={handleClearActiveChat}
+        chatLimitError={chatLimitError}
+      />
       <div className="w-full relative min-h-[90vh] lg:min-h-[100vh]">
         {chat.length > 0 && (
           <div className="pb-60">
@@ -62,7 +87,7 @@ export function Main() {
         <div className=" right-0 left-0 absolute bottom-0 bg-background pb-6 pt-4">
           <div className="container">
             <div className="max-w-3xl mx-auto">
-              <Input chat={chat} setChat={setChat} />
+              <Input chat={chat} setChat={setActiveChatMessages} />
             </div>
           </div>
           <p className="text-[#9A9B9F] max-w-[95%] text-xs text-center lg: mx-auto">

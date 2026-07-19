@@ -3,15 +3,46 @@ import { Flash, Light, Limitation } from "@/utils/icons.util";
 import Input from "@/shared/Input";
 import Aside from "@/shared/Aside";
 import InfoProvider from "@/components/InfoProvider";
-import { Fragment, useState } from "react";
+import { Fragment } from "react";
 import { AvatarChatGPT, AvatarUser, Dislike, Like } from "@/utils/icons.util";
 import ReactMarkdown from "react-markdown";
+import { useChatSessions } from "@/utils/useChatSessions";
+
 export function Start() {
-  const [chat, setChat] = useState([]);
+  const {
+    activeChat,
+    activeChatId,
+    chatLimitError,
+    chats,
+    handleClearActiveChat,
+    handleDeleteChat,
+    handleNewChat,
+    handleSelectChat,
+    setActiveChatMessages,
+  } = useChatSessions();
+
+  const chat = activeChat?.messages || [];
+
   return (
     <main className="text-white lg:flex lg:pl-[20%]">
-      <Navbar setChat={setChat} />
-      <Aside setChat={setChat} />
+      <Navbar
+        chats={chats}
+        activeChatId={activeChatId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={handleDeleteChat}
+        onClearActiveChat={handleClearActiveChat}
+        chatLimitError={chatLimitError}
+      />
+      <Aside
+        chats={chats}
+        activeChatId={activeChatId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={handleDeleteChat}
+        onClearActiveChat={handleClearActiveChat}
+        chatLimitError={chatLimitError}
+      />
       <div className="w-full relative min-h-[90vh] lg:min-h-[100vh]">
         {chat.length === 0 && (
           <div className="container lg:px-5 mt-12 md:mt-6 pb-60">
@@ -128,7 +159,7 @@ export function Start() {
         <div className="right-0 left-0 absolute bottom-0 bg-background py-4">
           <div className="container">
             <div className="max-w-3xl mx-auto">
-              <Input chat={chat} setChat={setChat} />
+              <Input chat={chat} setChat={setActiveChatMessages} />
             </div>
           </div>
           <p className="text-[#9A9B9F] max-w-[95%] text-xs text-center lg: mx-auto">

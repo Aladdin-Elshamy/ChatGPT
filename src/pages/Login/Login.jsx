@@ -32,9 +32,11 @@ export const Login = () => {
   //   );
   // }
   return (
-    <div className="min-h-screen w-full flex justify-center items-center bg-white">
+    <div className="min-h-screen w-full flex justify-center items-center bg-white text-[#2E3339]">
       <div className="flex flex-col items-center gap-14 w-full">
-        <GPTLogo />
+        <div className="text-[#202123]">
+          <GPTLogo />
+        </div>
 
         <div className="sm:w-96 w-full px-7">
           <div className="text-[#2E3339] text-[31px] font-bold text-center">
@@ -75,9 +77,10 @@ export const Login = () => {
           {/* <div className="mt-7 flex flex-col gap-2"> */}
           <button
             onClick={handleGoogleLogin}
-            className="flex mt-7 items-center border border-[#C3C8CF] px-5 py-3 rounded w-full gap-4"
+            className="flex mt-7 items-center border border-[#C3C8CF] px-5 py-3 rounded w-full gap-4 bg-white text-[#2E3339] font-medium hover:bg-gray-50"
           >
-            <Google /> Continue with Google
+            <Google />
+            <span>Continue with Google</span>
           </button>
           {/* <button
               onClick={handleMicrosoftLogin}
