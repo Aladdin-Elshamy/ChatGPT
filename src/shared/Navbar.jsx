@@ -1,10 +1,5 @@
 import Feature from "@/components/Feature";
-import {
-  Add,
-  Delete,
-  Light,
-  Logout,
-} from "@/utils/icons.util";
+import { Add, Delete, Light, Logout } from "@/utils/icons.util";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
@@ -64,7 +59,9 @@ export default function Navbar({
 
   function handleNewChatClick() {
     onNewChat();
-    setIsMenuOpen(false);
+    if (chats.length < 5) {
+      setIsMenuOpen(false);
+    }
   }
 
   function handleSelectChat(chatId) {
